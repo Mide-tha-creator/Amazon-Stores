@@ -1,0 +1,33 @@
+/* Walmart Seller Center design tokens */
+
+[data-marketplace="walmart"] {
+  --walmart-blue: #0071ce;
+  --walmart-blue-hover: #004f9a;
+  --walmart-tab-blue: #1a73e8;
+  --walmart-purple: #a78bc5;
+  --walmart-purple-legacy: #7659b6;
+  --walmart-chart-line: #a78bc5;
+  --walmart-chart-fill: rgba(167, 139, 197, 0.18);
+  --walmart-page-bg: #f4f7f9;
+  --walmart-card-bg: #ffffff;
+  --walmart-border: #e5e7eb;
+  --walmart-text: #111827;
+  --walmart-text-muted: #6b7280;
+
+  --primary: #0071ce;
+  --primary-foreground: #ffffff;
+  --accent: #e8f1fb;
+  --accent-foreground: #0071ce;
+  --ring: #0071ce;
+  --topnav-bg: #ffffff;
+  --page-bg: #f4f7f9;
+  --sidebar-bg: #ffffff;
+  --chart-accent: #a78bc5;
+  --border: #e5e7eb;
+  --muted-foreground: #6b7280;
+  --foreground: #111111;
+}
+
+[data-marketplace="walmart"] .walmart-font {
+  font-family: "Bogle", "Helvetica Neue", Arial, sans-serif;
+}
