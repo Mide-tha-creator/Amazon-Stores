@@ -1,5 +1,4 @@
 import { buildAmazonBundle } from "@/data/stores/build-amazon-bundle";
-import { getProductImageUrl } from "@/lib/catalog/product-image-url";
 import type { AmazonStoreDataConfig } from "@/types/store-data";
 
 export const amazonChokebodyDataConfig: AmazonStoreDataConfig = {
@@ -28,31 +27,31 @@ export const amazonChokebodyDataConfig: AmazonStoreDataConfig = {
     {
       asin: "B07HJF26M5",
       title: "Dubble Bubble Fruit Gumballs 850 Count Refill",
-      imageUrl: getProductImageUrl("B07HJF26M5"),
+      imageUrl: "/products/chokebody-dubble-bubble.png",
       category: "declining_sales",
       metricLabel: "$573.45 decline in OPS",
       deltaAmount: -573.45,
     },
     {
-      asin: "B08XYZ1234",
-      title: "Chokebody Resistance Bands Set - 5 Levels",
-      imageUrl: getProductImageUrl("B08XYZ1234"),
+      asin: "B08JBELLY01",
+      title: "Jelly Belly 3 Pound Bag",
+      imageUrl: "/products/chokebody-jelly-belly.png",
       category: "declining_sales",
       metricLabel: "$412.20 decline in OPS",
       deltaAmount: -412.2,
     },
     {
-      asin: "B09ABC5678",
-      title: "Premium Gym Towel 2-Pack Quick Dry",
-      imageUrl: getProductImageUrl("B09ABC5678"),
+      asin: "B09CRACK02",
+      title: "Member's Mark Animal Crackers",
+      imageUrl: "/products/chokebody-animal-crackers.png",
       category: "declining_sales",
       metricLabel: "$298.15 decline in OPS",
       deltaAmount: -298.15,
     },
     {
-      asin: "B07DEF9012",
-      title: "Protein Shaker Bottle 28oz BPA-Free",
-      imageUrl: getProductImageUrl("B07DEF9012"),
+      asin: "B07OIL003",
+      title: "Chosen Foods 100% Pure Avocado Oil",
+      imageUrl: "/products/chokebody-avocado-oil.png",
       category: "declining_sales",
       metricLabel: "$245.10 decline in OPS",
       deltaAmount: -245.1,
@@ -60,7 +59,8 @@ export const amazonChokebodyDataConfig: AmazonStoreDataConfig = {
     {
       asin: "B09JKL7890",
       title: "Jump Rope Weighted Speed Cable",
-      imageUrl: getProductImageUrl("B09JKL7890"),
+      imageUrl:
+        "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=120&h=120&fit=crop",
       category: "increasing_sales",
       metricLabel: "$245.80 increase in OPS",
       deltaAmount: 245.8,

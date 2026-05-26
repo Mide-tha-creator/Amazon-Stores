@@ -40,15 +40,18 @@ type ActiveField = "start" | "end" | null;
 
 const FIELD_HELPER_TEXT = {
   start: "Select start date — earlier dates are excluded from the range",
-  end: "Select end date — earlier dates are excluded from the range",
+  end: "Select end date — later dates are excluded from the range",
 } as const;
 
 function toIso(date: Date): string {
   return format(date, "yyyy-MM-dd");
 }
 
+const EXCLUDED_CELL_BG = "#e4e4e4";
+
 const dayPickerClassNames = {
   root: "p-3 amazon-day-picker",
+  month_grid: "border-collapse",
   month_caption:
     "flex justify-center pb-2 text-[13px] font-semibold text-[#111111]",
   nav: "flex items-center justify-between absolute inset-x-3 top-3",
@@ -56,24 +59,34 @@ const dayPickerClassNames = {
     "h-7 w-7 rounded text-[#565959] hover:bg-[#f3f5f6]",
   button_next: "h-7 w-7 rounded text-[#565959] hover:bg-[#f3f5f6]",
   weekday: "w-9 text-center text-[11px] font-normal text-[#565959]",
-  day: "h-9 w-9 p-0 text-center text-[13px]",
-  day_button: "h-9 w-9 rounded-none font-normal hover:bg-[#e7f4f5]",
-  selected:
-    "[&>button]:bg-[#008296] [&>button]:text-white [&>button]:hover:bg-[#008296]",
+  day: "rdp-day h-9 w-9 p-0 text-center text-[13px]",
+  day_button: "rdp-day_button h-9 w-9 rounded-none font-normal",
+  selected: "rdp-selected",
   today: "[&>button]:font-bold",
 } as const;
-
-const calendarModifiersClassNames = {
-  beforeAnchor: "rdp-day-before-anchor",
-};
 
 function getAnchorDate(range: DateRange, field: "start" | "end"): Date {
   return parseISO(field === "start" ? range.start : range.end);
 }
 
-function beforeAnchorModifier(anchorDay: Date) {
-  return (date: Date) => isBefore(startOfDay(date), anchorDay);
+function getCalendarModifiers(field: "start" | "end", anchorDay: Date) {
+  if (field === "start") {
+    return {
+      beforeAnchor: (date: Date) => isBefore(startOfDay(date), anchorDay),
+    };
+  }
+  return {
+    afterAnchor: (date: Date) => isAfter(startOfDay(date), anchorDay),
+  };
 }
+
+const START_MODIFIER_CLASS_NAMES = {
+  beforeAnchor: "rdp-day-before-anchor",
+} as const;
+
+const END_MODIFIER_CLASS_NAMES = {
+  afterAnchor: "rdp-day-after-anchor",
+} as const;
 
 export function AmazonDateRangePicker({
   preset,
@@ -165,15 +178,22 @@ export function AmazonDateRangePicker({
                 sideOffset={4}
               >
                 <DayPicker
-                  key={field}
+                  key={`${field}-${range.start}-${range.end}`}
                   mode="single"
                   selected={anchorDate}
                   onSelect={(date) => handleDayClick(date, field)}
                   defaultMonth={anchorDate}
-                  modifiers={{
-                    beforeAnchor: beforeAnchorModifier(anchorDay),
-                  }}
-                  modifiersClassNames={calendarModifiersClassNames}
+                  modifiers={getCalendarModifiers(field, anchorDay)}
+                  modifiersClassNames={
+                    field === "start"
+                      ? START_MODIFIER_CLASS_NAMES
+                      : END_MODIFIER_CLASS_NAMES
+                  }
+                  modifiersStyles={
+                    field === "start"
+                      ? { beforeAnchor: { backgroundColor: EXCLUDED_CELL_BG } }
+                      : { afterAnchor: { backgroundColor: EXCLUDED_CELL_BG } }
+                  }
                   classNames={dayPickerClassNames}
                 />
                 <p className="border-t border-[#d5d9d9] px-3 py-2 text-[11px] text-[#565959]">
