@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { format, subDays } from "date-fns";
 import { AmazonDashboardView } from "@/components/engine/amazon-dashboard-view";
 import { useStore } from "@/lib/store/store-context";
 import { useReportFilters } from "@/hooks/use-report-filters";
 import { useStoreOverridesVersion } from "@/hooks/use-store-overrides-version";
+import { getResolvedDashboardUi } from "@/lib/store/resolve-dashboard-ui";
 import { getAmazonDashboard } from "@/services/store-analytics.service";
 import type { SalesDashboardResponse } from "@/types/amazon";
 import type { DatePreset } from "@/types/common";
@@ -64,6 +65,10 @@ export function AmazonDashboardPage({
   const [data, setData] = useState<SalesDashboardResponse | null>(null);
   const [isPending, startTransition] = useTransition();
   const overridesVersion = useStoreOverridesVersion(storeId);
+  const dashboardUi = useMemo(
+    () => getResolvedDashboardUi(storeId),
+    [storeId, overridesVersion]
+  );
 
   const fetchData = useCallback(
     (filters = applied) => {
@@ -108,7 +113,7 @@ export function AmazonDashboardPage({
       isLoading={isLoading}
       isPending={isPending}
       showAsinCarousel={showAsinCarousel}
-      dashboardUi={config.dashboard}
+      dashboardUi={dashboardUi}
       onPresetChange={handlePresetChange}
       onRangeChange={updateRange}
       onFulfillmentChange={updateFulfillment}

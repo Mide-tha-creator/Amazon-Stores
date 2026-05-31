@@ -1,24 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
+import { parseISO } from "date-fns";
 import { formatCurrency } from "@/lib/format-currency";
 import { formatLiveTimestamp } from "@/lib/format-date";
 import { MetricTile } from "@/components/dashboard/metric-tile";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { SalesSnapshot } from "@/types/amazon";
-
-function useTakenAtLabel(refreshToken?: string): string {
-  const [label, setLabel] = useState(() => formatLiveTimestamp());
-
-  useEffect(() => {
-    const tick = () => setLabel(formatLiveTimestamp());
-    tick();
-    const id = window.setInterval(tick, 1000);
-    return () => window.clearInterval(id);
-  }, [refreshToken]);
-
-  return label;
-}
 
 interface SalesSnapshotSectionProps {
   snapshot?: SalesSnapshot | null;
@@ -29,7 +17,13 @@ export function SalesSnapshotSection({
   snapshot,
   isLoading,
 }: SalesSnapshotSectionProps) {
-  const takenAtLabel = useTakenAtLabel(snapshot?.generatedAt);
+  const takenAtLabel = useMemo(() => {
+    if (!snapshot?.generatedAt) return "";
+    const parsed = parseISO(snapshot.generatedAt);
+    return Number.isNaN(parsed.getTime())
+      ? formatLiveTimestamp()
+      : formatLiveTimestamp(parsed);
+  }, [snapshot?.generatedAt]);
 
   if (isLoading || !snapshot) {
     return (

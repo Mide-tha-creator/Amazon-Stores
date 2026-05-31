@@ -96,6 +96,8 @@ export interface StoreOverrides {
     asinAlerts?: AsinAlert[];
     ads?: Partial<AmazonAdsMetrics>;
     conversion?: Partial<AmazonConversionMetrics>;
+    /** Subtitle under “Deep dive into your sales” on Sales Dashboard. */
+    asinComparisonLabel?: string;
   };
   walmart?: {
     summary?: Partial<AccountSalesSummary>;

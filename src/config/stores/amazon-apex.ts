@@ -25,6 +25,7 @@ export const amazonApexConfig: StoreConfig = {
   routes: { home: getAmazonSalesDashboardPath("amazon-apex") },
   dashboard: {
     asinTitle: "Deep dive into your sales",
+    asinComparisonLabel: "Compared to prior week (May 4 – May 10, 2024)",
     defaultAsinCategory: "growth_opportunities",
     asinLayout: "carousel",
   },

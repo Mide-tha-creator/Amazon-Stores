@@ -21,6 +21,7 @@ import {
   getStoreAnalyticsAnchorEnd,
 } from "@/lib/store/recent-analytics-window";
 import { validateRecentAnalyticsRecords } from "@/lib/store/recent-analytics-save";
+import { DEFAULT_ASIN_COMPARISON_LABEL } from "@/lib/store/resolve-dashboard-ui";
 import { notifyStoreOverridesUpdated } from "@/lib/store/use-display-store-config";
 import { getAmazonBundle, getWalmartBundle } from "@/data/stores/registry";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,7 @@ export default function AdminPage() {
   const [kpiForm, setKpiForm] = useState(EMPTY_KPI_FORM);
   const [recentRecords, setRecentRecords] = useState<RecentAnalyticsRecord[]>([]);
   const [savedRecordsJson, setSavedRecordsJson] = useState("[]");
+  const [asinComparisonLabel, setAsinComparisonLabel] = useState("");
 
   const config = getStoreConfig(storeId);
   const isAmazon = config.template === "amazon-sales";
@@ -98,6 +100,11 @@ export default function AdminPage() {
     setSavedRecordsJson(JSON.stringify(records));
 
     if (baseConfig.template === "amazon-sales") {
+      setAsinComparisonLabel(
+        overrides.amazon?.asinComparisonLabel ??
+          baseConfig.dashboard?.asinComparisonLabel ??
+          DEFAULT_ASIN_COMPARISON_LABEL
+      );
       const snap = overrides.amazon?.snapshot;
       const agg = overrides.amazon?.aggregate;
       const defaults = getAmazonBundle(id).config.defaultAggregate;
@@ -135,6 +142,7 @@ export default function AdminPage() {
         ),
       });
     } else {
+      setAsinComparisonLabel("");
       const bundle = getWalmartBundle(id);
       const sum = overrides.walmart?.summary ?? bundle.summary;
       setKpiForm({
@@ -217,6 +225,7 @@ export default function AdminPage() {
         avgSalesPerOrderItem,
       };
 
+      const comparisonLabel = asinComparisonLabel.trim();
       next.amazon = {
         ...next.amazon,
         snapshot: {
@@ -227,7 +236,13 @@ export default function AdminPage() {
           ...next.amazon?.aggregate,
           ...metrics,
         },
+        ...(comparisonLabel
+          ? { asinComparisonLabel: comparisonLabel }
+          : {}),
       };
+      if (!comparisonLabel && next.amazon) {
+        delete next.amazon.asinComparisonLabel;
+      }
     } else {
       next.walmart = {
         ...next.walmart,
@@ -354,6 +369,47 @@ export default function AdminPage() {
             value="analytics"
             className="rounded-lg border bg-white p-6"
           >
+            {isAmazon ? (
+              <div className="mb-6 space-y-2 rounded-md border border-[#e5e7eb] bg-[#f9fafb] p-4">
+                <Label htmlFor="asin-comparison-label">
+                  Sales Dashboard — comparison period
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Gray subtitle under &quot;Deep dive into your sales&quot; on the Sales
+                  Dashboard (e.g. Compared to prior week (May 4 – May 10, 2024)). Saved
+                  with KPI overrides on the KPIs tab, or save below.
+                </p>
+                <Input
+                  id="asin-comparison-label"
+                  className="max-w-2xl text-[13px]"
+                  value={asinComparisonLabel}
+                  onChange={(e) => setAsinComparisonLabel(e.target.value)}
+                  placeholder={DEFAULT_ASIN_COMPARISON_LABEL}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const current = loadStoreOverrides(storeId) ?? {};
+                    const label = asinComparisonLabel.trim();
+                    const next: StoreOverrides = { ...current };
+                    next.amazon = { ...next.amazon };
+                    if (label) {
+                      next.amazon.asinComparisonLabel = label;
+                    } else {
+                      delete next.amazon.asinComparisonLabel;
+                    }
+                    saveStoreOverrides(storeId, next);
+                    setOverridesJson(JSON.stringify(next, null, 2));
+                    notifyStoreOverridesUpdated();
+                    toast.success("Comparison period label saved");
+                  }}
+                >
+                  Save comparison label
+                </Button>
+              </div>
+            ) : null}
             <AnalyticsRecordsEditor
               records={recentRecords}
               analyticsWindow={analyticsWindow}
@@ -397,7 +453,8 @@ export default function AdminPage() {
                   <p className="mt-1 text-xs text-muted-foreground">
                     Matches the five metrics on the Sales Snapshot section. Saving also
                     updates <code className="text-[11px]">amazon.aggregate</code> so
-                    Compare Sales stays in sync. Advanced overrides:{" "}
+                    Compare Sales stays in sync. Comparison period text is edited on the
+                    Recent analytics tab. Advanced overrides:{" "}
                     <code className="text-[11px]">amazon.timeSeries</code>,{" "}
                     <code className="text-[11px]">amazon.asinAlerts</code> (JSON tab).
                   </p>
