@@ -14,15 +14,6 @@ export const AMAZON_DESCRIPTION =
 export const WALMART_DESCRIPTION =
   "Account sales insights, GMV trends, and performance reporting for Walmart Seller Center.";
 
-export const PLATFORM_FAVICON = "/favicons/seller-platform.svg";
-
-export function getPlatformIconsMetadata(): NonNullable<Metadata["icons"]> {
-  return {
-    icon: [{ url: PLATFORM_FAVICON, type: "image/svg+xml" }],
-    shortcut: PLATFORM_FAVICON,
-  };
-}
-
 export function getMarketplaceTabTitle(
   marketplace: StoreConfig["marketplace"]
 ): string {
