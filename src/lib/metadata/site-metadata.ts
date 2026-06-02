@@ -14,9 +14,12 @@ export const AMAZON_DESCRIPTION =
 export const WALMART_DESCRIPTION =
   "Account sales insights, GMV trends, and performance reporting for Walmart Seller Center.";
 
+/** Bump when a favicon asset changes so browsers refetch instead of using a cached icon. */
+const FAVICON_VERSION = "5";
+
 export const STORE_FAVICON = {
-  amazon: "/favicons/amazon.png",
-  walmart: "/favicons/walmart-seller-center.png",
+  amazon: `/favicons/amazon.png?v=${FAVICON_VERSION}`,
+  walmart: `/favicons/walmart-seller-center.png?v=${FAVICON_VERSION}`,
 } as const;
 
 export function getStoreIconsMetadata(
