@@ -74,22 +74,8 @@
   --border: #d5d9d9;
 }
 
-[data-marketplace="walmart"] {
-  --primary: #0071ce;
-  --primary-foreground: #ffffff;
-  --accent: #e8f1fb;
-  --accent-foreground: #0071ce;
-  --ring: #0071ce;
-  --topnav-bg: #ffffff;
-  --page-bg: #f4f7f9;
-  --sidebar-bg: #ffffff;
-  --chart-accent: #7d5ab5;
-  --border: #e5e7eb;
-}
-
 @import "../styles/amazon-seller-central.css";
 @import "../styles/amazon-calendar.css";
-@import "../styles/walmart-seller-center.css";
 
 @layer base {
   * {
@@ -102,16 +88,4 @@
   [data-marketplace="amazon"] {
     font-family: "Amazon Ember", Arial, Helvetica, sans-serif;
   }
-}
-
-.walmart-day-picker .rdp-selected .rdp-day_button,
-.walmart-day-picker .rdp-range_start .rdp-day_button,
-.walmart-day-picker .rdp-range_end .rdp-day_button {
-  background-color: #0071ce;
-  color: #ffffff;
-}
-
-.walmart-day-picker .rdp-range_middle .rdp-day_button {
-  background-color: #e8f1fb;
-  color: #111111;
 }

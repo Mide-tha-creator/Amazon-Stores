@@ -5,7 +5,7 @@ import { addDays, format, parseISO } from "date-fns";
 import { Copy, Plus, Sparkles, Trash2, TrendingUp, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { normalizeTableRowDate } from "@/lib/store/walmart-table-rows";
+import { normalizeAnalyticsDate } from "@/lib/store/normalize-analytics-date";
 import type { RecentAnalyticsRecord, RecentAnalyticsWindow } from "@/types/recent-analytics";
 
 interface AnalyticsRecordsEditorProps {
@@ -44,7 +44,7 @@ function findNextEditableDate(
   records: RecentAnalyticsRecord[],
   analyticsWindow: RecentAnalyticsWindow
 ): string {
-  const used = new Set(records.map((r) => normalizeTableRowDate(r.date)));
+  const used = new Set(records.map((r) => normalizeAnalyticsDate(r.date)));
   const anchor = analyticsWindow.anchorEnd;
 
   // Prefer the most recent open dates first (anchor, then backward) so new rows
@@ -110,8 +110,8 @@ export function AnalyticsRecordsEditor({
 
   const duplicateRow = (index: number) => {
     const source = records[index];
-    let date = normalizeTableRowDate(source.date);
-    const used = new Set(records.map((r) => normalizeTableRowDate(r.date)));
+    let date = normalizeAnalyticsDate(source.date);
+    const used = new Set(records.map((r) => normalizeAnalyticsDate(r.date)));
     for (let i = 0; i < 5000; i++) {
       const next = format(addDays(parseISO(date), 1), "yyyy-MM-dd");
       if (!used.has(next)) {
@@ -133,7 +133,7 @@ export function AnalyticsRecordsEditor({
     const count = Number(window.prompt("How many empty rows to add?", "5"));
     if (!Number.isFinite(count) || count < 1 || count > 30) return;
     const added: RecentAnalyticsRecord[] = [];
-    const used = new Set(records.map((r) => normalizeTableRowDate(r.date)));
+    const used = new Set(records.map((r) => normalizeAnalyticsDate(r.date)));
     let cursor = findNextEditableDate(records, analyticsWindow);
     for (let i = 0; i < count; i++) {
       while (used.has(cursor)) {
@@ -265,7 +265,7 @@ export function AnalyticsRecordsEditor({
                       type="date"
                       className="h-8 w-[148px] text-[12px]"
                       min={analyticsWindow.start}
-                      value={normalizeTableRowDate(row.date)}
+                      value={normalizeAnalyticsDate(row.date)}
                       onChange={(e) => updateRow(index, { date: e.target.value })}
                     />
                   </td>

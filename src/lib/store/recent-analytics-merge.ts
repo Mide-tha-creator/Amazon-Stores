@@ -1,52 +1,23 @@
-import { getAmazonBundle, getWalmartBundle } from "@/data/stores/registry";
-import { getStoreConfig } from "@/config/stores/registry";
+import { getAmazonBundle } from "@/data/stores/registry";
 import type { StoreId } from "@/config/stores/types";
 import {
   filterRecordsToWindow,
   getRecentAnalyticsWindow,
   getStoreAnalyticsAnchorEnd,
   isDateInRecentWindow,
-  isLockedHistoricalDate,
 } from "@/lib/store/recent-analytics-window";
-import { normalizeTableRowDate, recalculateWalmartTableRows } from "@/lib/store/walmart-table-rows";
+import { normalizeAnalyticsDate } from "@/lib/store/normalize-analytics-date";
 import type { SalesTimeSeriesPoint } from "@/types/amazon";
-import type { DailySalesRow } from "@/types/walmart";
-import type {
-  AmazonStoreDataBundle,
-  StoreOverrides,
-  WalmartStoreDataBundle,
-} from "@/types/store-data";
+import type { AmazonStoreDataBundle, StoreOverrides } from "@/types/store-data";
 import type { RecentAnalyticsRecord } from "@/types/recent-analytics";
 
 export function recordToAmazonPoint(
   record: RecentAnalyticsRecord
 ): SalesTimeSeriesPoint {
   return {
-    date: normalizeTableRowDate(record.date),
+    date: normalizeAnalyticsDate(record.date),
     orderedProductSales: record.totalSales,
     unitsOrdered: record.unitsSold,
-  };
-}
-
-function recordToWalmartRow(
-  record: RecentAnalyticsRecord,
-  template?: DailySalesRow
-): DailySalesRow {
-  const date = normalizeTableRowDate(record.date);
-  const gmv = record.totalSales;
-  const unitsSold = record.unitsSold;
-  const orders = record.orders ?? template?.orders ?? Math.max(1, Math.round(unitsSold / 1.2));
-  return {
-    date,
-    gmv,
-    gmvChangePercent: template?.gmvChangePercent ?? 0,
-    gmvNetCommission: template?.gmvNetCommission ?? 0,
-    unitsSold,
-    orders,
-    aur: unitsSold > 0 ? Math.round((gmv / unitsSold) * 100) / 100 : 0,
-    authSales: template?.authSales ?? Math.round(gmv * 0.92 * 100) / 100,
-    cancelledSales: template?.cancelledSales ?? Math.round(gmv * 0.03 * 100) / 100,
-    refundSales: template?.refundSales ?? Math.round(gmv * 0.02 * 100) / 100,
   };
 }
 
@@ -64,30 +35,12 @@ export function amazonSeriesToRecords(
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
-export function walmartRowsToRecords(
-  rows: DailySalesRow[],
-  windowStart: string
-): RecentAnalyticsRecord[] {
-  return rows
-    .filter((r) => {
-      const d = normalizeTableRowDate(r.date);
-      return d >= windowStart;
-    })
-    .map((r) => ({
-      date: normalizeTableRowDate(r.date),
-      totalSales: r.gmv,
-      unitsSold: r.unitsSold,
-      orders: r.orders,
-    }))
-    .sort((a, b) => b.date.localeCompare(a.date));
-}
-
 function mergeSeriesByDate(
   base: SalesTimeSeriesPoint[],
   patches: Map<string, SalesTimeSeriesPoint>
 ): SalesTimeSeriesPoint[] {
   const byDate = new Map(
-    base.map((p) => [normalizeTableRowDate(p.date), p])
+    base.map((p) => [normalizeAnalyticsDate(p.date), p])
   );
   for (const [date, point] of patches) {
     byDate.set(date, point);
@@ -95,27 +48,11 @@ function mergeSeriesByDate(
   return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 
-function mergeWalmartRowsByDate(
-  locked: DailySalesRow[],
-  windowRows: DailySalesRow[]
-): DailySalesRow[] {
-  const byDate = new Map<string, DailySalesRow>();
-  for (const row of locked) {
-    byDate.set(normalizeTableRowDate(row.date), row);
-  }
-  for (const row of windowRows) {
-    byDate.set(normalizeTableRowDate(row.date), row);
-  }
-  return recalculateWalmartTableRows(
-    [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date))
-  );
-}
-
 export function mergeRecentAnalyticsIntoAmazonBundle(
   base: AmazonStoreDataBundle,
   overrides: StoreOverrides | null
 ): SalesTimeSeriesPoint[] {
-  const anchorEnd = getStoreAnalyticsAnchorEnd("amazon", base.config);
+  const anchorEnd = getStoreAnalyticsAnchorEnd(base.config);
   const window = getRecentAnalyticsWindow(anchorEnd);
 
   let series = [...base.fullTimeSeries];
@@ -135,66 +72,23 @@ export function mergeRecentAnalyticsIntoAmazonBundle(
     }
   }
 
-  const records =
-    overrides?.recentAnalytics?.records ??
-    [];
+  const records = overrides?.recentAnalytics?.records ?? [];
   const filtered = filterRecordsToWindow(records, window);
   if (filtered.length === 0) return series;
 
   const patchMap = new Map(
-    filtered.map((r) => [normalizeTableRowDate(r.date), recordToAmazonPoint(r)])
+    filtered.map((r) => [normalizeAnalyticsDate(r.date), recordToAmazonPoint(r)])
   );
   return mergeSeriesByDate(series, patchMap).sort((a, b) =>
     a.date.localeCompare(b.date)
   );
 }
 
-export function mergeRecentAnalyticsIntoWalmartBundle(
-  base: WalmartStoreDataBundle,
-  overrides: StoreOverrides | null
-): DailySalesRow[] {
-  const anchorEnd = getStoreAnalyticsAnchorEnd("walmart", base.config);
-  const window = getRecentAnalyticsWindow(anchorEnd);
-
-  let rows = [...base.tableRows];
-
-  if (overrides?.walmart?.tableRows && !overrides.recentAnalytics?.records?.length) {
-    return overrides.walmart.tableRows;
-  }
-
-  if (overrides?.walmart?.tableRows) {
-    rows = overrides.walmart.tableRows;
-  }
-
-  const records = overrides?.recentAnalytics?.records ?? [];
-  const filtered = filterRecordsToWindow(records, window);
-  if (filtered.length === 0) return rows;
-
-  const rowByDate = new Map(
-    rows.map((r) => [normalizeTableRowDate(r.date), r])
-  );
-  const locked = rows.filter((r) =>
-    isLockedHistoricalDate(normalizeTableRowDate(r.date), window)
-  );
-  const windowRows = filtered.map((r) =>
-    recordToWalmartRow(r, rowByDate.get(normalizeTableRowDate(r.date)))
-  );
-
-  return mergeWalmartRowsByDate(locked, windowRows);
-}
-
 export function loadRecentAnalyticsRecordsForStore(
   storeId: StoreId,
   overrides: StoreOverrides | null
 ): RecentAnalyticsRecord[] {
-  const config = getStoreConfig(storeId);
-  const marketplace = config.marketplace;
-  const anchorEnd = getStoreAnalyticsAnchorEnd(
-    marketplace,
-    marketplace === "amazon"
-      ? getAmazonBundle(storeId).config
-      : getWalmartBundle(storeId).config
-  );
+  const anchorEnd = getStoreAnalyticsAnchorEnd(getAmazonBundle(storeId).config);
   const window = getRecentAnalyticsWindow(anchorEnd);
 
   if (overrides?.recentAnalytics?.records?.length) {
@@ -203,21 +97,11 @@ export function loadRecentAnalyticsRecordsForStore(
     );
   }
 
-  if (marketplace === "amazon") {
-    const base = getAmazonBundle(storeId);
-    let series = base.fullTimeSeries;
-    if (overrides?.amazon?.timeSeries) {
-      series = overrides.amazon.timeSeries;
-    }
-    return amazonSeriesToRecords(series, window.start);
+  let series = getAmazonBundle(storeId).fullTimeSeries;
+  if (overrides?.amazon?.timeSeries) {
+    series = overrides.amazon.timeSeries;
   }
-
-  const base = getWalmartBundle(storeId);
-  let rows = base.tableRows;
-  if (overrides?.walmart?.tableRows) {
-    rows = overrides.walmart.tableRows;
-  }
-  return walmartRowsToRecords(rows, window.start);
+  return amazonSeriesToRecords(series, window.start);
 }
 
 export function buildOverridesFromRecentRecords(
@@ -225,14 +109,7 @@ export function buildOverridesFromRecentRecords(
   records: RecentAnalyticsRecord[],
   existing: StoreOverrides | null
 ): StoreOverrides {
-  const config = getStoreConfig(storeId);
-  const marketplace = config.marketplace;
-  const anchorEnd = getStoreAnalyticsAnchorEnd(
-    marketplace,
-    marketplace === "amazon"
-      ? getAmazonBundle(storeId).config
-      : getWalmartBundle(storeId).config
-  );
+  const anchorEnd = getStoreAnalyticsAnchorEnd(getAmazonBundle(storeId).config);
   const window = getRecentAnalyticsWindow(anchorEnd);
   const inWindow = filterRecordsToWindow(records, window);
 
@@ -244,30 +121,16 @@ export function buildOverridesFromRecentRecords(
     },
   };
 
-  if (marketplace === "amazon") {
-    const base = getAmazonBundle(storeId);
-    const merged = mergeRecentAnalyticsIntoAmazonBundle(base, {
-      ...next,
-      recentAnalytics: next.recentAnalytics,
-    });
-    const windowOnly = merged.filter((p) =>
-      isDateInRecentWindow(p.date, window)
-    );
-    next.amazon = {
-      ...existing?.amazon,
-      timeSeries: windowOnly,
-    };
-  } else {
-    const base = getWalmartBundle(storeId);
-    const merged = mergeRecentAnalyticsIntoWalmartBundle(base, {
-      ...next,
-      recentAnalytics: next.recentAnalytics,
-    });
-    next.walmart = {
-      ...existing?.walmart,
-      tableRows: merged,
-    };
-  }
+  const base = getAmazonBundle(storeId);
+  const merged = mergeRecentAnalyticsIntoAmazonBundle(base, {
+    ...next,
+    recentAnalytics: next.recentAnalytics,
+  });
+  const windowOnly = merged.filter((p) => isDateInRecentWindow(p.date, window));
+  next.amazon = {
+    ...existing?.amazon,
+    timeSeries: windowOnly,
+  };
 
   return next;
 }

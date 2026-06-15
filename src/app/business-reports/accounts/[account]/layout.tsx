@@ -31,7 +31,7 @@ export default async function AmazonAccountLayout({
 }) {
   const { account } = await params;
   return (
-    <AccountStoreLayout account={account} expectedMarketplace="amazon">
+    <AccountStoreLayout account={account}>
       {children}
     </AccountStoreLayout>
   );

@@ -6,7 +6,7 @@ import {
   filterRecordsToWindow,
   isDateInRecentWindow,
 } from "@/lib/store/recent-analytics-window";
-import { normalizeTableRowDate } from "@/lib/store/walmart-table-rows";
+import { normalizeAnalyticsDate } from "@/lib/store/normalize-analytics-date";
 
 export function validateRecentAnalyticsRecords(
   records: RecentAnalyticsRecord[],
@@ -16,7 +16,7 @@ export function validateRecentAnalyticsRecords(
   const dates = new Set<string>();
 
   for (const r of inWindow) {
-    const date = normalizeTableRowDate(r.date);
+    const date = normalizeAnalyticsDate(r.date);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return { ok: false, error: `Invalid date: ${r.date}` };
     }
@@ -36,7 +36,7 @@ export function validateRecentAnalyticsRecords(
     ok: true,
     records: inWindow.map((r) => ({
       ...r,
-      date: normalizeTableRowDate(r.date),
+      date: normalizeAnalyticsDate(r.date),
       totalSales: Math.round(r.totalSales * 100) / 100,
       unitsSold: Math.round(r.unitsSold),
     })),

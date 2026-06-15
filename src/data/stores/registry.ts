@@ -2,11 +2,9 @@ import { buildAmazonBundle } from "@/data/stores/build-amazon-bundle";
 import { amazonApexDataConfig } from "@/data/stores/amazon-apex/dashboard";
 import { amazonChokebodyDataConfig } from "@/data/stores/amazon-chokebody/dashboard";
 import { amazonNovaDataConfig } from "@/data/stores/amazon-nova/dashboard";
-import { buildWalmartMainBundle } from "@/data/stores/walmart-main/sales-insights";
-import { buildWalmartSecondBundle } from "@/data/stores/walmart-second/sales-insights";
 import { getTodayIso } from "@/lib/store/rolling-dashboard-range";
 import type { StoreId } from "@/config/stores/types";
-import type { AmazonStoreDataBundle, WalmartStoreDataBundle } from "@/types/store-data";
+import type { AmazonStoreDataBundle } from "@/types/store-data";
 
 const AMAZON_CONFIGS = {
   "amazon-chokebody": amazonChokebodyDataConfig,
@@ -23,15 +21,4 @@ export function getAmazonBundle(storeId: StoreId): AmazonStoreDataBundle {
     ...config,
     seriesEnd: getTodayIso(),
   });
-}
-
-export function getWalmartBundle(storeId: StoreId): WalmartStoreDataBundle {
-  switch (storeId) {
-    case "walmart-main":
-      return buildWalmartMainBundle();
-    case "walmart-second":
-      return buildWalmartSecondBundle();
-    default:
-      throw new Error(`${storeId} is not a Walmart store`);
-  }
 }

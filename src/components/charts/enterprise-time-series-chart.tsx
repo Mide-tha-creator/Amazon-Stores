@@ -10,7 +10,6 @@ import {
   baseGridOption,
   buildSeriesConfig,
   type ChartVariant,
-  WALMART_PURPLE,
   AMAZON_CYAN,
 } from "@/lib/charts/chart-themes";
 import {
@@ -120,7 +119,7 @@ export function EnterpriseTimeSeriesChart({
   }, [fullMin, fullMax, onVisibleRangeChange, updateAxisGranularity]);
 
   const buildOption = useCallback((): EChartsOption => {
-    const accent = variant === "walmart-area" ? WALMART_PURPLE : AMAZON_CYAN;
+    const accent = AMAZON_CYAN;
     const yAxis =
       yDomain !== "auto"
         ? {
@@ -149,20 +148,18 @@ export function EnterpriseTimeSeriesChart({
         bottom: 8,
         filterMode: "none",
         borderColor: "#e5e7eb",
-        fillerColor: "rgba(118, 89, 182, 0.12)",
+        fillerColor: "rgba(0, 113, 133, 0.12)",
         handleStyle: { color: accent, borderColor: accent },
         dataBackground: {
           lineStyle: { color: accent, opacity: 0.35 },
-          areaStyle: { color: "rgba(118, 89, 182, 0.08)" },
+          areaStyle: { color: "rgba(0, 113, 133, 0.08)" },
         },
         selectedDataBackground: {
           lineStyle: { color: accent },
-          areaStyle: { color: "rgba(118, 89, 182, 0.15)" },
+          areaStyle: { color: "rgba(0, 113, 133, 0.15)" },
         },
       });
     }
-
-    const isWalmart = variant === "walmart-area";
 
     const option: EChartsOption = {
       ...baseGridOption({ compactBottom: !showSlider }),
@@ -182,7 +179,7 @@ export function EnterpriseTimeSeriesChart({
           }
         : undefined,
       brush:
-        !isWalmart && showToolbox
+        showToolbox
           ? {
               toolbox: ["lineX"],
               xAxisIndex: 0,
@@ -283,7 +280,7 @@ export function EnterpriseTimeSeriesChart({
     onChartReady?.(chart);
 
     chart.on("dataZoom", handleDataZoom);
-    if (variant !== "walmart-area" && showToolbox) {
+    if (showToolbox) {
       chart.on("brushEnd", (params) => {
         const brushParams = params as {
           areas?: Array<{ coordRange?: [number, number] }>;

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ALL_STORES } from "@/config/stores/registry";
 import { PLATFORM_DESCRIPTION, PLATFORM_TITLE } from "@/lib/metadata/site-metadata";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: PLATFORM_TITLE,
@@ -32,52 +31,33 @@ export default function HomePage() {
           Select a store
         </p>
         <h2 className="mb-4 text-3xl font-bold tracking-tight text-[#111111] md:text-4xl">
-          Marketplace analytics
+          Amazon seller accounts
         </h2>
         <p className="mb-12 max-w-2xl text-[#565959]">
-          Choose a seller account to open business reports, sales dashboards, and
-          marketplace performance insights.
+          Choose an Amazon seller account to open business reports, sales
+          dashboards, and ASIN performance insights.
         </p>
         <div className="grid gap-6 sm:grid-cols-2">
           {ALL_STORES.map((store) => (
             <Link
               key={store.id}
               href={store.routes.home}
-              className={cn(
-                "group flex flex-col rounded-xl border border-[#d5d9d9] bg-white p-6 text-left shadow-sm transition hover:shadow-md",
-                store.marketplace === "amazon"
-                  ? "hover:border-[#008296]"
-                  : "hover:border-[#0071ce]"
-              )}
+              className="group flex flex-col rounded-xl border border-[#d5d9d9] bg-white p-6 text-left shadow-sm transition hover:border-[#008296] hover:shadow-md"
             >
-              <div
-                className={cn(
-                  "mb-4 inline-flex w-fit",
-                  store.marketplace === "amazon" &&
-                    "rounded bg-[#002f36] px-3 py-2"
-                )}
-              >
+              <div className="mb-4 inline-flex w-fit rounded bg-[#002f36] px-3 py-2">
                 <Image
                   src={store.logo.src}
                   alt={store.logo.alt}
-                  width={store.marketplace === "amazon" ? 430 : 160}
-                  height={store.marketplace === "amazon" ? 80 : 36}
-                  className={cn(
-                    "w-auto object-contain object-left",
-                    store.marketplace === "amazon" ? "h-7" : "h-9"
-                  )}
+                  width={430}
+                  height={80}
+                  className="h-7 w-auto object-contain object-left"
                 />
               </div>
               <h3 className="text-xl font-bold text-[#111111]">{store.name}</h3>
               <p className="mt-2 flex-1 text-sm text-[#565959]">
                 {store.description}
               </p>
-              <span
-                className={cn(
-                  "mt-4 inline-flex items-center text-sm font-medium",
-                  store.marketplace === "amazon" ? "text-[#008296]" : "text-[#0071ce]"
-                )}
-              >
+              <span className="mt-4 inline-flex items-center text-sm font-medium text-[#008296]">
                 Open dashboard
                 <ArrowRight className="ml-1 h-4 w-4 transition group-hover:translate-x-1" />
               </span>

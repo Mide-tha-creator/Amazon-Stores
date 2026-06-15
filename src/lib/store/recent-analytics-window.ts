@@ -38,10 +38,8 @@ export function filterRecordsToWindow(
 }
 
 export function getStoreAnalyticsAnchorEnd(
-  _marketplace?: "amazon" | "walmart",
   _config?: { seriesEnd?: string; rangeEnd?: string }
 ): string {
-  void _marketplace;
   void _config;
   return getTodayIso();
 }

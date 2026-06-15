@@ -20,7 +20,6 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Legacy marketplace entry points → enterprise URLs
       {
         source: "/amazon",
         destination: "/business-reports/sales-dashboard",
@@ -37,32 +36,6 @@ const nextConfig: NextConfig = {
           "/business-reports/accounts/chokebody/reports/:slug",
         permanent: false,
       },
-      {
-        source: "/walmart",
-        destination: "/analytics/sales-insights/account-sales",
-        permanent: false,
-      },
-      {
-        source: "/walmart/analytics/sales-insights",
-        destination: "/analytics/sales-insights/account-sales",
-        permanent: false,
-      },
-      {
-        source: "/walmart/analytics/sales-insights/item",
-        destination: "/analytics/sales-insights/item-performance",
-        permanent: false,
-      },
-      {
-        source: "/walmart/analytics/sales-insights/department",
-        destination: "/analytics/sales-insights/department-performance",
-        permanent: false,
-      },
-      {
-        source: "/walmart/analytics/sales-insights/:path*",
-        destination: "/analytics/sales-insights/account-sales",
-        permanent: false,
-      },
-      // Legacy multi-store paths → enterprise account paths
       {
         source: "/store/amazon-chokebody/dashboard/sales",
         destination: "/business-reports/accounts/chokebody/sales-dashboard",
@@ -91,42 +64,6 @@ const nextConfig: NextConfig = {
       {
         source: "/store/amazon-nova/reports/:slug",
         destination: "/business-reports/accounts/kursat/reports/:slug",
-        permanent: false,
-      },
-      {
-        source: "/store/walmart-main/analytics/sales-insights",
-        destination:
-          "/analytics/accounts/us-marketplace/sales-insights/account-sales",
-        permanent: false,
-      },
-      {
-        source: "/store/walmart-main/analytics/sales-insights/item",
-        destination:
-          "/analytics/accounts/us-marketplace/sales-insights/item-performance",
-        permanent: false,
-      },
-      {
-        source: "/store/walmart-main/analytics/sales-insights/department",
-        destination:
-          "/analytics/accounts/us-marketplace/sales-insights/department-performance",
-        permanent: false,
-      },
-      {
-        source: "/store/walmart-second/analytics/sales-insights",
-        destination:
-          "/analytics/accounts/us-marketplace-2/sales-insights/account-sales",
-        permanent: false,
-      },
-      {
-        source: "/store/walmart-second/analytics/sales-insights/item",
-        destination:
-          "/analytics/accounts/us-marketplace-2/sales-insights/item-performance",
-        permanent: false,
-      },
-      {
-        source: "/store/walmart-second/analytics/sales-insights/department",
-        destination:
-          "/analytics/accounts/us-marketplace-2/sales-insights/department-performance",
         permanent: false,
       },
     ];

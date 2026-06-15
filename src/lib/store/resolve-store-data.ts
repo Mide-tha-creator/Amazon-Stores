@@ -1,10 +1,7 @@
-import { getAmazonBundle, getWalmartBundle } from "@/data/stores/registry";
+import { getAmazonBundle } from "@/data/stores/registry";
 import { isValidStoreId } from "@/config/stores/registry";
 import { deepMerge } from "@/lib/store/merge-overrides";
-import {
-  mergeRecentAnalyticsIntoAmazonBundle,
-  mergeRecentAnalyticsIntoWalmartBundle,
-} from "@/lib/store/recent-analytics-merge";
+import { mergeRecentAnalyticsIntoAmazonBundle } from "@/lib/store/recent-analytics-merge";
 import {
   getRecentAnalyticsWindow,
   getStoreAnalyticsAnchorEnd,
@@ -12,7 +9,7 @@ import {
 } from "@/lib/store/recent-analytics-window";
 import { getStoreOverridesKey } from "@/lib/store/storage-keys";
 import type { StoreId } from "@/config/stores/types";
-import type { AmazonStoreDataBundle, StoreOverrides, WalmartStoreDataBundle } from "@/types/store-data";
+import type { AmazonStoreDataBundle, StoreOverrides } from "@/types/store-data";
 
 export function loadStoreOverrides(storeId: string): StoreOverrides | null {
   if (typeof window === "undefined") return null;
@@ -52,7 +49,7 @@ export function getResolvedAmazonBundle(storeId: StoreId): AmazonStoreDataBundle
   } else {
     fullTimeSeries = mergeRecentAnalyticsIntoAmazonBundle(base, allOverrides);
     if (overrides?.timeSeries && hasRecent) {
-      const anchorEnd = getStoreAnalyticsAnchorEnd("amazon", base.config);
+      const anchorEnd = getStoreAnalyticsAnchorEnd(base.config);
       const window = getRecentAnalyticsWindow(anchorEnd);
       const legacyMap = new Map(overrides.timeSeries.map((p) => [p.date, p]));
       fullTimeSeries = fullTimeSeries.map((p) => {
@@ -79,33 +76,6 @@ export function getResolvedAmazonBundle(storeId: StoreId): AmazonStoreDataBundle
         : undefined,
     }),
     fullTimeSeries,
-  };
-}
-
-export function getResolvedWalmartBundle(storeId: StoreId): WalmartStoreDataBundle {
-  const base = getWalmartBundle(storeId);
-  const allOverrides = loadStoreOverrides(storeId);
-  const overrides = allOverrides?.walmart;
-  if (!allOverrides && !overrides) return base;
-
-  const tableRows = mergeRecentAnalyticsIntoWalmartBundle(base, allOverrides);
-
-  if (!overrides) {
-    return {
-      ...base,
-      tableRows,
-    };
-  }
-
-  return {
-    config: base.config,
-    summary: overrides.summary
-      ? deepMerge(base.summary, overrides.summary)
-      : base.summary,
-    timeSeries: overrides.timeSeries
-      ? deepMerge(base.timeSeries, overrides.timeSeries)
-      : base.timeSeries,
-    tableRows,
   };
 }
 
