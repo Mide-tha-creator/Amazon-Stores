@@ -59,8 +59,7 @@ export const amazonChokebodyDataConfig: AmazonStoreDataConfig = {
     {
       asin: "B09JKL7890",
       title: "Jump Rope Weighted Speed Cable",
-      imageUrl:
-        "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=120&h=120&fit=crop",
+      imageUrl: "/products/chokebody-jump-rope.png",
       category: "increasing_sales",
       metricLabel: "$245.80 increase in OPS",
       deltaAmount: 245.8,

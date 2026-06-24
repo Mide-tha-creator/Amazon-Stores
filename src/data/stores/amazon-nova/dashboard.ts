@@ -36,7 +36,7 @@ export const amazonNovaDataConfig: AmazonStoreDataConfig = {
     {
       asin: "B0D2RK4PEN",
       title:
-        "Aozora 18 Pack Ballpoint Pens Smooth Writing 2-in-1 Stylus Retractable Ballpoint Pen with Stylus Tip, 1.0 mm Black Ink (9 Pens with 9 Refills)",
+        "Aozora Ballpoint Pens Black Ink Medium Point with Super Soft Grip Retractable Ball Point Pen 1.0mm Office Decor School Supplies (15pcs-GOLD)",
       imageUrl: "/products/kursat-aozora-stylus-pens.png",
       category: "below_market_average",
       metricLabel:
@@ -64,8 +64,7 @@ export const amazonNovaDataConfig: AmazonStoreDataConfig = {
     {
       asin: "B08ORG400",
       title: "Countertop Spice Rack 3-Tier",
-      imageUrl:
-        "https://images.unsplash.com/photo-1556909114-f6e7ad7d4046?w=120&h=120&fit=crop",
+      imageUrl: "/products/kursat-spice-rack.png",
       category: "increasing_sales",
       metricLabel: "$456.80 increase in ordered product sales",
       deltaAmount: 456.8,
